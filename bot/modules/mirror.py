@@ -10,6 +10,7 @@ from bot.helper.mirror_utils.download_utils.aria2_download import AriaDownloadHe
 from bot.helper.mirror_utils.download_utils.direct_link_generator import direct_link_generator
 from bot.helper.mirror_utils.download_utils.telegram_downloader import TelegramDownloadHelper
 from bot.helper.mirror_utils.status_utils import listeners
+from bot.helper.mirror_utils.status_utils.extract_status import ExtractStatus
 from bot.helper.mirror_utils.status_utils.tar_status import TarStatus
 from bot.helper.mirror_utils.status_utils.upload_status import UploadStatus
 from bot.helper.mirror_utils.upload_utils import gdriveTools
@@ -63,20 +64,26 @@ class MirrorListener(listeners.MirrorListeners):
                 self.onUploadError('Internal error occurred!!')
                 return
         elif self.extract:
-            if tarfile.is_tarfile(m_path) or zipfile.is_zipfile(m_path):
+            download.is_extracting = True
+            
+            path = fs_utils.get_base_name(m_path)
+            if path != "unsupported":
                 LOGGER.info(
                     f"Extracting : {download_dict[self.uid].name()} "
                 )
-                path = fs_utils.unzip(m_path)
+                download_dict[self.uid] = ExtractStatus(name, m_path, size)
+                os.system(f"extract '{m_path}'")
+                if not os.path.exists(path):
+                    self.onUploadError("Cannot extract file, check integrity of the file")
+                    return
                 LOGGER.info(
                     f'got path : {path}'
                 )
                 try:
                     os.remove(m_path)
+                    LOGGER.info(f"Deleting archive : {m_path}")
                 except Exception as e:
                     LOGGER.error(str(e))
-                pass
-                LOGGER.info(f"Deleting archive : {m_path}")
             else:
                 LOGGER.info("Not any valid archive, uploading file as it is.")
                 path = f'{DOWNLOAD_DIR}{self.uid}/{download_dict[self.uid].name()}'

@@ -13,12 +13,13 @@ URL_REGEX = r"(?:(?:https?|ftp):\/\/)?[\w/\-?=%.]+\.[\w/\-?=%.]+"
 
 
 class MirrorStatus:
-    STATUS_UPLOADING = "📤: Uploading..."
-    STATUS_DOWNLOADING = "📥: Downloading..."
-    STATUS_WAITING = ": Queued 📝"
-    STATUS_FAILED = ": Failed 🚫. Cleaning download"
-    STATUS_CANCELLED = ": Cancelled ❎"
-    STATUS_ARCHIVING = ": Archiving 🔐"
+    STATUS_UPLOADING = ": 📤 Uploading..."
+    STATUS_DOWNLOADING = ": 📥 Downloading..."
+    STATUS_WAITING = ": 📝 Queued..."
+    STATUS_FAILED = ": 🚫 Failed. Cleaning download."
+    STATUS_CANCELLED = ": ❎Cancelled."
+    STATUS_ARCHIVING = ": 🔐 Archiving..."
+    STATUS_EXTRACTING = ": Extracting..."
 
 
 PROGRESS_MAX_SIZE = 100 // 8
@@ -91,7 +92,7 @@ def get_readable_message():
         for download in list(download_dict.values()):
             msg += f"<b>Name</b>: <code>{download.name()}</code> "
             msg += f"\n<b>Status</b>: <code>{download.status()}</code>"
-            if download.status() != MirrorStatus.STATUS_ARCHIVING:
+            if download.status() != MirrorStatus.STATUS_ARCHIVING and download.status() != MirrorStatus.STATUS_EXTRACTING:
                 msg += f"\n<code>{get_progress_bar_string(download)} {download.progress()}</code>" \
                        f"\n<b>Downloaded:</b> <code>{get_readable_file_size(download.processed_bytes())}</code> of <code>{download.size()}</code>" \
                        f"\n<b>Speed:</b> <code>{download.speed()}</code> \n<b>ETA:</b> <code>{download.eta()}</code> "
